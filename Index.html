@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computer Devices</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --panel: #ffffff;
+    --ink: #172033;
+    --muted: #64748b;
+    --accent: #315efb;
+    --accent-dark: #2347c7;
+    --good: #15803d;
+    --bad: #b91c1c;
+    --border: #dbe3ef;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  header {
+    background: linear-gradient(135deg, #233876, #315efb);
+    color: white;
+    padding: 28px 18px;
+    text-align: center;
+  }
+
+  header h1 {
+    margin: 0 0 8px;
+    font-size: clamp(1.7rem, 4vw, 2.5rem);
+  }
+
+  header p {
+    margin: 0;
+    opacity: 0.92;
+  }
+
+  main {
+    width: min(1200px, 94%);
+    margin: 24px auto 40px;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .instructions {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    flex: 1 1 420px;
+  }
+
+  .instructions h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+  }
+
+  .instructions p {
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .progress-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    min-width: 220px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .progress-track {
+    height: 12px;
+    background: #e5eaf3;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.25s ease;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  button, input {
+    font: inherit;
+  }
+
+  button {
+    border: 0;
+    border-radius: 9px;
+    padding: 11px 16px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  button:focus-visible, input:focus-visible {
+    outline: 3px solid #fbbf24;
+    outline-offset: 2px;
+  }
+
+  .primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .primary:hover { background: var(--accent-dark); }
+
+  .secondary {
+    background: #e8edf7;
+    color: var(--ink);
+  }
+
+  .filter-button.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  .device-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 18px;
+  }
+
+  .device-card {
+    background: var(--panel);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .device-card.solved {
+    border-color: #22c55e;
+  }
+
+  .device-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .device-image {
+    min-height: 180px;
+    display: grid;
+    place-items: center;
+    background: #f8fafc;
+    padding: 16px;
+  }
+
+  .device-image svg {
+    width: 100%;
+    max-width: 230px;
+    height: 160px;
+  }
+
+  .device-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .device-title {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .device-type {
+    display: inline-block;
+    width: fit-content;
+    border-radius: 999px;
+    padding: 5px 9px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    background: #e7eefc;
+    color: #2444a3;
+  }
+
+  .device-card.solved .device-type {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .answer-row {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+  }
+
+  .answer-row input {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #b8c4d8;
+    border-radius: 8px;
+    padding: 10px;
+  }
+
+  .feedback {
+    min-height: 22px;
+    font-size: 0.92rem;
+    font-weight: bold;
+  }
+
+  .feedback.good { color: var(--good); }
+  .feedback.bad { color: var(--bad); }
+
+  @keyframes answerShake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+  .device-card.shake { animation: answerShake 0.35s ease; }
+
+  .solved-note {
+    color: var(--good);
+    font-weight: bold;
+  }
+
+  .completion-message {
+    display: none;
+    margin: 0 0 20px;
+    background: #dcfce7;
+    border: 2px solid #22c55e;
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    color: #166534;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+
+  .completion-message.show {
+    display: block;
+  }
+
+  .empty {
+    background: var(--panel);
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  @media (max-width: 500px) {
+    .answer-row {
+      flex-direction: column;
+    }
+
+    .answer-row button {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Computer Devices</h1>
+  <p>Identify each computer device from its picture.</p>
+</header>
+
+<main>
+  <div class="topbar">
+    <section class="instructions" aria-labelledby="instructions-title">
+      <h2 id="instructions-title">Your task</h2>
+      <p>Look at each picture, type the name of the device, and select <strong>Check</strong>. Name each computer device from its picture.</p>
+    </section>
+
+    <section class="progress-box" aria-label="Progress">
+      <div class="progress-label">
+        <span>Progress</span>
+        <span id="progress-text">0 / 11</span>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="controls" aria-label="Device controls">
+    <button class="secondary" id="reset-button">Reset answers</button>
+  </div>
+
+  <div id="completion-message" class="completion-message" role="status" aria-live="polite">🎉 Well done! You have correctly identified all of the devices!</div>
+
+  <section id="device-grid" class="device-grid" aria-live="polite"></section>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  const devices = [
+    { name: "Keyboard", kind: "keyboard", hint: "Hint: It has lots of keys and is used for typing.", close: ["keybord", "key board", "keyboad", "keyboar", "keybaord", "keyboared"] },
+    { name: "Mouse", kind: "mouse", hint: "Hint: You move it across a surface to control the pointer.", close: ["mous", "mose", "moose", "moue", "muse"] },
+    { name: "Microphone", kind: "microphone", hint: "Hint: It is used to record or input sound.", close: ["microfone", "microphon", "micrphone", "microphne", "micro phone", "micophone"] },
+    { name: "Webcam", kind: "webcam", hint: "Hint: It captures live video for a computer.", accepted: ["camera"], close: ["web cam", "webkam", "webcamm", "webcame", "webcan", "web camra", "camra"] },
+    { name: "Monitor", kind: "monitor", hint: "Hint: You look at it to see images and information from the computer.", close: ["moniter", "monitior", "monitour", "monetor", "moniter"] },
+    { name: "Printer", kind: "printer", hint: "Hint: It produces a paper copy of digital information.", close: ["printor", "prnter", "priter", "printar", "printerr", "printrer", "print er"] },
+    { name: "Speakers", kind: "speakers", hint: "Hint: They play sound from the computer.", accepted: ["speaker"], close: ["speeker", "spekers", "speakrs", "speakerz", "speker"] },
+    { name: "Headphones", kind: "headphones", hint: "Hint: You wear them to listen to sound privately.", close: ["head phones", "headfone", "headfones", "headphons", "headpones", "hedphones", "headphonse"] },
+    { name: "Gaming Controller", kind: "controller", hint: "Hint: It has buttons and sticks used to control games.", accepted: ["controller"], close: ["controler", "contoller", "controllor", "game controller", "gaming controler", "gaming controllor", "gameing controller"] },
+    { name: "Touchscreen", kind: "touchscreen", hint: "Hint: You control the device by touching the display.", close: ["touch screen", "touchscren", "touchscrean", "tuchscreen", "touchsreen", "touch screan", "tuch screen"] }
+  ];
+
+  const solved = new Set();
+
+  const grid = document.getElementById("device-grid");
+  const progressText = document.getElementById("progress-text");
+  const progressFill = document.getElementById("progress-fill");
+  const completionMessage = document.getElementById("completion-message");
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function (char) {
+      return ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char];
+    });
+  }
+
+  function svgFor(kind) {
+    const common = 'viewBox="0 0 240 160" role="img" aria-label="Illustration of a computer device"';
+    const svgs = {
+      keyboard: `<svg ${common}><rect x="15" y="42" width="210" height="78" rx="10" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><rect x="28" y="54" width="184" height="43" rx="4" fill="#f8fafc" stroke="#8291a8"/><g fill="#aebbd0">${Array.from({length: 12}, (_,i) => `<rect x="${34+i*15}" y="60" width="10" height="10" rx="2"/>`).join("")}${Array.from({length: 11}, (_,i) => `<rect x="${40+i*15}" y="75" width="10" height="10" rx="2"/>`).join("")}</g><rect x="65" y="101" width="110" height="9" rx="4" fill="#8291a8"/></svg>`,
+      mouse: `<svg ${common}><path d="M120 18 C77 18 65 54 68 91 C71 128 91 143 120 143 C149 143 169 128 172 91 C175 54 163 18 120 18Z" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><path d="M120 20 V74" stroke="#596b85" stroke-width="3"/><rect x="113" y="36" width="14" height="25" rx="7" fill="#8291a8"/><path d="M69 79 H171" stroke="#8291a8" stroke-width="2"/></svg>`,
+      microphone: `<svg ${common}><rect x="94" y="18" width="52" height="86" rx="26" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><path d="M83 70 C83 111 157 111 157 70" fill="none" stroke="#596b85" stroke-width="6"/><path d="M120 111 V137 M92 137 H148" stroke="#596b85" stroke-width="6" stroke-linecap="round"/><g stroke="#8291a8" stroke-width="3">${[0,1,2,3].map(i => `<path d="M${105+i*10} 32 V88"/>`).join("")}</g></svg>`,
+      webcam: `<svg ${common}><rect x="38" y="43" width="164" height="76" rx="12" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><circle cx="120" cy="81" r="28" fill="#596b85"/><circle cx="120" cy="81" r="18" fill="#172033"/><circle cx="114" cy="75" r="6" fill="#e2e8f0"/><path d="M105 119 L95 140 H145 L135 119" fill="#8291a8" stroke="#596b85" stroke-width="3"/></svg>`,
+      scanner: `<svg ${common}><rect x="25" y="57" width="190" height="70" rx="9" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><path d="M42 57 L58 28 H182 L198 57" fill="#f8fafc" stroke="#596b85" stroke-width="3"/><rect x="62" y="38" width="116" height="15" rx="3" fill="#cbd5e1"/><rect x="65" y="75" width="110" height="30" rx="3" fill="#f8fafc" stroke="#8291a8"/><path d="M77 90 H163" stroke="#315efb" stroke-width="4"/></svg>`,
+      monitor: `<svg ${common}><rect x="30" y="18" width="180" height="102" rx="8" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><rect x="43" y="31" width="154" height="76" rx="3" fill="#9bb7e8"/><path d="M50 92 L84 62 L112 83 L151 47 L190 92Z" fill="#315efb"/><path d="M120 120 V140 M84 140 H156" stroke="#596b85" stroke-width="7" stroke-linecap="round"/></svg>`,
+      printer: `<svg ${common}><rect x="35" y="52" width="170" height="78" rx="10" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><rect x="63" y="20" width="114" height="55" rx="4" fill="#f8fafc" stroke="#596b85" stroke-width="3"/><rect x="76" y="31" width="88" height="30" fill="#ffffff" stroke="#8291a8"/><rect x="61" y="91" width="118" height="52" rx="3" fill="#ffffff" stroke="#596b85" stroke-width="3"/><circle cx="176" cy="71" r="5" fill="#315efb"/></svg>`,
+      speakers: `<svg ${common}><rect x="38" y="20" width="62" height="120" rx="8" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><rect x="140" y="20" width="62" height="120" rx="8" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><circle cx="69" cy="57" r="17" fill="#596b85"/><circle cx="171" cy="57" r="17" fill="#596b85"/><circle cx="69" cy="108" r="23" fill="#596b85"/><circle cx="171" cy="108" r="23" fill="#596b85"/><circle cx="69" cy="108" r="12" fill="#8291a8"/><circle cx="171" cy="108" r="12" fill="#8291a8"/></svg>`,
+      projector: `<svg ${common}><rect x="38" y="48" width="164" height="74" rx="12" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><circle cx="78" cy="85" r="22" fill="#596b85"/><circle cx="78" cy="85" r="12" fill="#172033"/><rect x="111" y="68" width="62" height="12" rx="4" fill="#8291a8"/><rect x="111" y="88" width="42" height="12" rx="4" fill="#8291a8"/><path d="M92 122 L82 140 H158 L148 122" fill="#8291a8" stroke="#596b85" stroke-width="3"/></svg>`,
+      headphones: `<svg ${common}><path d="M58 88 V68 C58 15 182 15 182 68 V88" fill="none" stroke="#596b85" stroke-width="14" stroke-linecap="round"/><rect x="38" y="78" width="45" height="54" rx="14" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><rect x="157" y="78" width="45" height="54" rx="14" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/></svg>`,
+      controller: `<svg ${common}><rect x="35" y="48" width="170" height="70" rx="28" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><path d="M78 73 V101 M64 87 H92" stroke="#596b85" stroke-width="6" stroke-linecap="round"/><circle cx="157" cy="76" r="7" fill="#596b85"/><circle cx="176" cy="94" r="7" fill="#596b85"/><circle cx="157" cy="94" r="7" fill="#596b85"/><circle cx="176" cy="76" r="7" fill="#596b85"/><circle cx="118" cy="82" r="10" fill="#8291a8"/><circle cx="136" cy="82" r="10" fill="#8291a8"/></svg>`,
+      touchscreen: `<svg ${common}><rect x="55" y="18" width="130" height="124" rx="10" fill="#d8e0eb" stroke="#596b85" stroke-width="3"/><rect x="67" y="30" width="106" height="94" rx="4" fill="#9bb7e8"/><path d="M116 78 C116 67 132 64 135 74 L138 88 L149 77 C154 72 162 79 158 85 L143 104 C139 109 128 108 124 102 L116 91Z" fill="#f8fafc" stroke="#596b85" stroke-width="2"/></svg>`
+    };
+    return svgs[kind] || "";
+  }
+
+  function render() {
+    grid.innerHTML = "";
+
+    const visible = devices;
+
+    visible.forEach(function (device) {
+      const index = devices.indexOf(device);
+      const isSolved = solved.has(index);
+      const card = document.createElement("article");
+      card.className = "device-card" + (isSolved ? " solved" : "");
+      card.innerHTML = `
+        <div class="device-image">${svgFor(device.kind)}</div>
+        <div class="device-content">
+          <h2 class="device-title">${isSolved ? esc(device.name) : "What is this device?"}</h2>
+          <div class="answer-row">
+            <input type="text" aria-label="Answer for device ${index + 1}" placeholder="Enter device name" ${isSolved ? "disabled" : ""}>
+            <button class="primary check-button" ${isSolved ? "disabled" : ""}>Check</button>
+          </div>
+          <div class="feedback ${isSolved ? "good" : ""}" aria-live="polite">${isSolved ? "Correct! Well done." : ""}</div>
+        </div>
+      `;
+
+      const input = card.querySelector("input");
+      const button = card.querySelector(".check-button");
+      const feedback = card.querySelector(".feedback");
+
+      function checkAnswer() {
+        if (solved.has(index)) return;
+
+        const answer = input.value.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+        const correct = device.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+        const accepted = (device.accepted || []).map(function (value) {
+          return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+        });
+        const close = (device.close || []).map(function (value) {
+          return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+        });
+
+        if (answer === correct || accepted.includes(answer)) {
+          solved.add(index);
+          updateProgress();
+          render();
+        } else if (close.includes(answer)) {
+          const attempt = Number(input.dataset.helpLevel || 0) + 1;
+          card.classList.remove("shake");
+          void card.offsetWidth;
+          card.classList.add("shake");
+          input.dataset.helpLevel = attempt;
+          feedback.className = "feedback bad";
+          if (attempt === 1) {
+            feedback.textContent = "💡 Very close! Check your spelling and try again.";
+          } else if (attempt === 2) {
+            feedback.textContent = "💡 You're really close! Check the spelling carefully and try again.";
+          } else if (attempt === 3) {
+            feedback.textContent = `💡 You have the right idea! The correct spelling is “${device.name}”. Please type it in and check again.`;
+          } else {
+            feedback.textContent = `💡 The correct spelling is “${device.name}”. Please type it in and check again.`;
+          }
+          setTimeout(function () { card.classList.remove("shake"); }, 400);
+        } else {
+          feedback.className = "feedback bad";
+          feedback.textContent = device.hint;
+        }
+      }
+
+      button.addEventListener("click", checkAnswer);
+      input.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") checkAnswer();
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  function updateProgress() {
+    const count = solved.size;
+    progressText.textContent = count + " / " + devices.length;
+    progressFill.style.width = (count / devices.length * 100) + "%";
+    completionMessage.classList.toggle("show", count === devices.length);
+  }
+
+  document.getElementById("reset-button").addEventListener("click", function () {
+    solved.clear();
+    updateProgress();
+    render();
+  });
+
+  updateProgress();
+  render();
+})();
+</script>
+</body>
+</html>
